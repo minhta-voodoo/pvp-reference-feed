@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>PvP Reference Feed</title>
+<style>
+:root {
+  --bg: #f6f5f2; --surface: #ffffff; --ink: #1c1c1e; --muted: #6a6a70; --line: #e4e2dc;
+  --accent: #2d5be3; --shadow: 0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.05);
+  --layout: #cf3f73; --mechanic: #2a6bd6; --both: #7a4ed3; --theme: #d2701f;
+  --hot: #e0453f; --big: #23905a; --mid: #a57c00; --small: #7d7d84;
+  --radius: 12px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111214; --surface: #1a1b1e; --ink: #ececee; --muted: #9b9ba3; --line: #2b2c31;
+    --accent: #86a2ff; --shadow: 0 1px 2px rgba(0,0,0,.4);
+    --layout: #f06b9a; --mechanic: #6a9cff; --both: #a98bff; --theme: #f09a4f;
+    --hot: #ff6b63; --big: #4cc485; --mid: #e0b43a; --small: #9b9ba3;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111214; --surface: #1a1b1e; --ink: #ececee; --muted: #9b9ba3; --line: #2b2c31;
+  --accent: #86a2ff; --shadow: 0 1px 2px rgba(0,0,0,.4);
+  --layout: #f06b9a; --mechanic: #6a9cff; --both: #a98bff; --theme: #f09a4f;
+  --hot: #ff6b63; --big: #4cc485; --mid: #e0b43a; --small: #9b9ba3;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: inherit; }
+.wrap { max-width: 1320px; margin: 0 auto; padding: 0 20px; }
+
+/* header */
+.top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line); }
+.title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-top: 18px; flex-wrap: wrap; }
+h1 { font-size: 20px; letter-spacing: -.01em; margin: 0; }
+.sub { margin: 2px 0 10px; color: var(--muted); font-size: 13px; }
+.notion { font-size: 13px; color: var(--muted); text-decoration: none; }
+.notion:hover { color: var(--ink); }
+.tabs { display: flex; gap: 4px; }
+.tabs button {
+  appearance: none; border: 0; background: none; color: var(--muted); font: inherit; font-weight: 600;
+  padding: 10px 12px; border-bottom: 2px solid transparent; cursor: pointer;
+}
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.count { font-weight: 500; color: var(--muted); margin-left: 4px; font-variant-numeric: tabular-nums; }
+
+/* toolbar + chips */
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; padding: 18px 0 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  appearance: none; font: inherit; font-size: 13px; cursor: pointer; border-radius: 999px;
+  padding: 5px 11px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip .n { color: inherit; opacity: .6; margin-left: 4px; font-variant-numeric: tabular-nums; }
+.sep { width: 1px; align-self: stretch; background: var(--line); }
+
+/* feed cards */
+.grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); padding-bottom: 48px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--shadow); display: flex; flex-direction: column; }
+.media { position: relative; aspect-ratio: 16 / 9; background: #0b0b0c; }
+.media video, .media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.media .ph { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 44px; font-weight: 700;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--c, #555) 70%, #000), #111); }
+.badges { position: absolute; left: 10px; top: 10px; right: 10px; display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none; }
+.badge { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; color: #fff;
+  background: rgba(0,0,0,.62); backdrop-filter: blur(6px); }
+.badge.hot { background: var(--hot); }
+.still { position: absolute; right: 10px; bottom: 10px; font-size: 11px; color: #fff; background: rgba(0,0,0,.55);
+  padding: 2px 7px; border-radius: 6px; }
+.body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.body h3 { margin: 0; font-size: 16px; line-height: 1.3; }
+.body h3 a { text-decoration: none; }
+.body h3 a:hover { text-decoration: underline; }
+.star { color: #e3a008; margin-left: 4px; }
+.meta { margin: 0; font-size: 13px; color: var(--muted); }
+.ref { margin: 0; }
+.angle { margin: 0; font-size: 14px; padding: 8px 10px; border-radius: 8px;
+  background: color-mix(in srgb, var(--c, var(--accent)) 9%, transparent);
+  border-left: 3px solid var(--c, var(--accent)); }
+.label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--c, var(--accent)); margin-bottom: 2px; }
+.tags { display: flex; flex-wrap: wrap; gap: 5px; margin: 2px 0 0; padding: 0; list-style: none; }
+.tags li { font-size: 12px; padding: 1px 7px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); }
+.foot { margin-top: auto; padding-top: 8px; display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--muted);
+  border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.foot a { color: var(--muted); text-decoration: none; }
+.foot a:hover { color: var(--ink); }
+.type-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 6px; vertical-align: 1px; }
+.empty { color: var(--muted); padding: 40px 0; text-align: center; }
+
+/* library */
+.lib-tools input[type="search"], .lib-tools select {
+  font: inherit; font-size: 14px; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px;
+}
+.lib-tools input[type="search"] { flex: 1 1 260px; min-width: 0; }
+.check { font-size: 14px; display: flex; gap: 6px; align-items: center; color: var(--muted); }
+.shown { font-size: 13px; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+.table-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 48px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 700;
+  padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th[data-key] { cursor: pointer; user-select: none; }
+th[data-key]:hover { color: var(--ink); }
+th .arrow { opacity: .8; }
+td { padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td .pub { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+td .gname { font-weight: 600; text-decoration: none; }
+td .gname:hover { text-decoration: underline; }
+td.txt { color: var(--ink); min-width: 220px; }
+.tr-hot { color: var(--hot); font-weight: 700; } .tr-big { color: var(--big); font-weight: 600; }
+.tr-mid { color: var(--mid); } .tr-small, .tr-unknown { color: var(--small); }
+td .tags { margin-top: 6px; }
+
+@media (max-width: 860px) {
+  .wrap { padding: 0 16px; }
+  .grid { grid-template-columns: 1fr; }
+  .shown { margin-left: 0; width: 100%; }
+  .sep { display: none; }
+  table, thead, tbody, tr, td { display: block; }
+  thead { display: none; }
+  tr { padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  tr:last-child { border-bottom: 0; }
+  td { border: 0; padding: 2px 0; }
+  td.num { text-align: left; display: inline-block; margin-right: 14px; color: var(--muted); font-size: 13px; }
+  td.num::before { content: attr(data-label) " "; }
+  td.txt { min-width: 0; margin-top: 6px; }
+  td.txt::before { content: attr(data-label); display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .04em; color: var(--muted); }
+  td.hide-sm { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="title-row">
+      <h1>PvP Reference Feed</h1>
+      <a class="notion" id="notionLink" href="#" target="_blank" rel="noopener">Edit in Notion ↗</a>
+    </div>
+    <p class="sub" id="sub"></p>
+    <nav class="tabs" role="tablist">
+      <button role="tab" id="tab-feed" aria-selected="true" aria-controls="panel-feed">This week<span class="count" id="feedCount"></span></button>
+      <button role="tab" id="tab-library" aria-selected="false" aria-controls="panel-library">Library<span class="count" id="libCount"></span></button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="panel-feed" role="tabpanel" aria-labelledby="tab-feed">
+    <div class="toolbar">
+      <div class="chips" id="weekChips" aria-label="Week"></div>
+      <div class="sep" aria-hidden="true"></div>
+      <div class="chips" id="typeChips" aria-label="Type"></div>
+    </div>
+    <div class="grid" id="cards"></div>
+    <p class="empty" id="feedEmpty" hidden>No new additions in this window yet. The Monday scan adds them.</p>
+  </section>
+
+  <section id="panel-library" role="tabpanel" aria-labelledby="tab-library" hidden>
+    <div class="toolbar lib-tools">
+      <input type="search" id="q" placeholder="Search games, publishers, tags, ideas…" aria-label="Search">
+      <select id="fType" aria-label="Type"><option value="">All types</option></select>
+      <select id="fStatus" aria-label="Status"><option value="">All statuses</option></select>
+      <select id="fTraction" aria-label="Traction"><option value="">All traction</option></select>
+      <label class="check"><input type="checkbox" id="fStar"> Starred only</label>
+      <span class="shown" id="shown"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th data-key="game">Game</th>
+          <th data-key="type">Type</th>
+          <th data-key="status">Status</th>
+          <th data-key="traction">Traction</th>
+          <th data-key="followers" style="text-align:right">Followers</th>
+          <th data-key="weekly_gain" style="text-align:right">Per week</th>
+          <th>What's new</th>
+          <th>Mobile PvP angle</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script id="feed-data" type="application/json">__DATA__</script>
+<script>
+(() => {
+  const D = JSON.parse(document.getElementById('feed-data').textContent);
+  const rows = D.rows;
+  const TYPE_COLOR = { 'Visual & layout': 'var(--layout)', 'PvP mechanic': 'var(--mechanic)', 'Both': 'var(--both)', 'Theme & art': 'var(--theme)' };
+  const TRACTION_ORDER = { Hot: 4, Big: 3, Mid: 2, Small: 1, Unknown: 0 };
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, attrs = {}, ...kids) => {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === 'text') n.textContent = v; else if (k === 'style') n.style.cssText = v; else n.setAttribute(k, v);
+    }
+    for (const k of kids.flat()) if (k != null) n.append(k);
+    return n;
+  };
+  const fmt = (n) => n == null ? '—' : n >= 100000 ? Math.round(n / 1000) + 'K' : n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K' : String(n);
+  const gainText = (g) => g == null ? '—' : (g < 0 ? '−' : '+') + fmt(Math.abs(g)) + '/wk';
+  const day = (iso) => new Date(iso + (iso.length === 10 ? 'T00:00:00Z' : '')).toLocaleDateString(undefined, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+
+  // header
+  const feedRows = rows.filter(r => r.week);
+  $('notionLink').href = D.notion;
+  $('feedCount').textContent = feedRows.length;
+  $('libCount').textContent = rows.length;
+  $('sub').textContent = `Updated ${new Date(D.built.replace('Z', ':00Z')).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })} · new additions from the last ${Math.round(D.feedDays / 7)} weeks · ${rows.length} games in the library`;
+
+  // tabs
+  const tabs = { feed: $('tab-feed'), library: $('tab-library') };
+  const show = (name) => {
+    for (const [k, b] of Object.entries(tabs)) { b.setAttribute('aria-selected', k === name); $('panel-' + k).hidden = k !== name; }
+    try { history.replaceState(null, '', name === 'library' ? '#library' : '#'); } catch (e) {}
+    if (name === 'feed') observeVideos();
+  };
+  tabs.feed.onclick = () => show('feed');
+  tabs.library.onclick = () => show('library');
+
+  // ---------------- feed
+  const weeks = [...new Set(feedRows.map(r => r.week))].sort().reverse();
+  let week = weeks[0], type = '';
+  const weekLabel = (w) => {
+    const inWeek = feedRows.filter(r => r.week === w);
+    return inWeek.every(r => r.found_via === 'Trend sweep') ? `Starting set · ${day(w)}` : `Week of ${day(w)}`;
+  };
+  const chip = (label, n, pressed, onClick) => {
+    const b = el('button', { class: 'chip', type: 'button', 'aria-pressed': pressed }, label, n != null ? el('span', { class: 'n', text: n }) : null);
+    b.onclick = onClick; return b;
+  };
+  const renderWeekChips = () => {
+    $('weekChips').replaceChildren(...weeks.map(w => chip(weekLabel(w), feedRows.filter(r => r.week === w).length, w === week, () => { week = w; type = ''; renderFeed(); })));
+  };
+  const renderTypeChips = (inWeek) => {
+    const types = Object.keys(TYPE_COLOR).filter(t => inWeek.some(r => r.type === t));
+    $('typeChips').replaceChildren(
+      chip('All types', inWeek.length, type === '', () => { type = ''; renderFeed(); }),
+      ...types.map(t => chip(el('span', {}, el('span', { class: 'type-dot', style: `--c:${TYPE_COLOR[t]}` }), t), inWeek.filter(r => r.type === t).length, type === t, () => { type = t; renderFeed(); }))
+    );
+  };
+  const card = (r) => {
+    const c = TYPE_COLOR[r.type] || 'var(--accent)';
+    let media;
+    if (r.clip) media = el('video', { muted: '', loop: '', playsinline: '', preload: 'none', poster: r.poster, 'aria-label': `${r.game} gameplay loop`, src: r.clip });
+    else if (r.poster) media = el('img', { src: r.poster, alt: '', loading: 'lazy' });
+    else media = el('div', { class: 'ph', style: `--c:${c}`, text: (r.game || '?').trim().charAt(0) });
+    const badges = el('div', { class: 'badges' },
+      el('span', { class: 'badge', style: `background:${c}`, text: r.type }),
+      r.traction === 'Hot' ? el('span', { class: 'badge hot', text: `Hot ${gainText(r.weekly_gain)}` }) : null);
+    const meta = [(r.publisher || []).join(', '), r.status, r.release].filter(Boolean).join(' · ');
+    return el('article', { class: 'card', style: `--c:${c}` },
+      el('div', { class: 'media' }, media, badges, !r.clip && r.poster ? el('span', { class: 'still', text: 'Still' }) : null),
+      el('div', { class: 'body' },
+        el('h3', {}, el('a', { href: r.steam, target: '_blank', rel: 'noopener', text: r.game }), r.starred ? el('span', { class: 'star', title: 'Starred', text: '★' }) : null),
+        el('p', { class: 'meta', text: meta }),
+        r.reference ? el('p', { class: 'ref', text: r.reference }) : null,
+        r.angle ? el('p', { class: 'angle' }, el('span', { class: 'label', text: 'Mobile PvP angle' }), r.angle) : null,
+        (r.tags || []).length ? el('ul', { class: 'tags' }, r.tags.map(t => el('li', { text: t }))) : null,
+        el('div', { class: 'foot' },
+          el('span', { text: r.followers != null ? `${fmt(r.followers)} followers${r.weekly_gain != null ? ' · ' + gainText(r.weekly_gain) : ''}` : 'Followers not read yet' }),
+          r.notion ? el('a', { href: r.notion, target: '_blank', rel: 'noopener', text: 'Notion ↗' }) : null)));
+  };
+  const renderFeed = () => {
+    const inWeek = feedRows.filter(r => r.week === week);
+    renderWeekChips(); renderTypeChips(inWeek);
+    const list = inWeek.filter(r => !type || r.type === type)
+      .sort((a, b) => (TRACTION_ORDER[b.traction] - TRACTION_ORDER[a.traction]) || ((b.followers || 0) - (a.followers || 0)));
+    $('cards').replaceChildren(...list.map(card));
+    $('feedEmpty').hidden = list.length > 0;
+    observeVideos();
+  };
+
+  // play only what's on screen; respect reduced motion
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      const v = e.target;
+      if (e.isIntersecting) { v.preload = 'auto'; if (!reduce) v.play().catch(() => {}); } else v.pause();
+    }
+  }, { threshold: 0.35 }) : null;
+  function observeVideos() {
+    document.querySelectorAll('#cards video').forEach(v => {
+      v.muted = true;
+      if (io) io.observe(v); else if (!reduce) v.play().catch(() => {});
+      if (reduce) { v.onmouseenter = () => v.play().catch(() => {}); v.onmouseleave = () => v.pause(); v.onclick = () => v.paused ? v.play() : v.pause(); }
+    });
+  }
+
+  // ---------------- library
+  const uniq = (key) => [...new Set(rows.map(r => r[key]).filter(Boolean))].sort();
+  const addOptions = (sel, values) => values.forEach(v => sel.append(el('option', { value: v, text: v })));
+  addOptions($('fType'), Object.keys(TYPE_COLOR).filter(t => rows.some(r => r.type === t)));
+  addOptions($('fStatus'), ['Upcoming', 'Demo', 'Early Access', 'Released'].filter(s => rows.some(r => r.status === s)));
+  addOptions($('fTraction'), ['Hot', 'Big', 'Mid', 'Small', 'Unknown'].filter(s => rows.some(r => r.traction === s)));
+  let sortKey = 'game', sortDir = 1;
+  const hay = rows.map(r => [r.game, r.developer, (r.publisher || []).join(' '), r.reference, r.angle, (r.tags || []).join(' '), r.signal, r.type].join(' ').toLowerCase());
+  const val = (r, k) => k === 'traction' ? TRACTION_ORDER[r.traction] ?? -1 : k === 'followers' || k === 'weekly_gain' ? (r[k] ?? -Infinity) : (r[k] || '').toString().toLowerCase();
+  const renderLib = () => {
+    const q = $('q').value.trim().toLowerCase(), ft = $('fType').value, fs = $('fStatus').value, fr = $('fTraction').value, star = $('fStar').checked;
+    const list = rows.filter((r, i) => (!q || q.split(/\s+/).every(w => hay[i].includes(w))) && (!ft || r.type === ft) && (!fs || r.status === fs) && (!fr || r.traction === fr) && (!star || r.starred))
+      .sort((a, b) => { const x = val(a, sortKey), y = val(b, sortKey); return (x > y ? 1 : x < y ? -1 : 0) * sortDir || a.game.localeCompare(b.game); });
+    $('shown').textContent = `${list.length} of ${rows.length}`;
+    $('rows').replaceChildren(...list.map(r => el('tr', {},
+      el('td', {}, el('a', { class: 'gname', href: r.steam, target: '_blank', rel: 'noopener', text: r.game }), r.starred ? el('span', { class: 'star', text: '★' }) : null,
+        el('span', { class: 'pub', text: (r.publisher || []).join(', ') })),
+      el('td', { class: 'hide-sm' }, el('span', { class: 'type-dot', style: `--c:${TYPE_COLOR[r.type] || 'var(--muted)'}` }), r.type || ''),
+      el('td', { class: 'hide-sm' }, r.status || '', el('span', { class: 'pub', text: r.release || '' })),
+      el('td', { class: 'num', 'data-label': 'Traction', style: 'text-align:left' }, el('span', { class: 'tr-' + (r.traction || 'unknown').toLowerCase(), text: r.traction || '—' })),
+      el('td', { class: 'num', 'data-label': 'Followers', text: fmt(r.followers) }),
+      el('td', { class: 'num', 'data-label': 'Per week', text: gainText(r.weekly_gain) }),
+      el('td', { class: 'txt', 'data-label': "What's new" }, r.reference || '', (r.tags || []).length ? el('ul', { class: 'tags' }, r.tags.map(t => el('li', { text: t }))) : null),
+      el('td', { class: 'txt', 'data-label': 'Mobile PvP angle', text: r.angle || '' }))));
+    document.querySelectorAll('th[data-key]').forEach(th => {
+      th.querySelector('.arrow')?.remove();
+      if (th.dataset.key === sortKey) th.append(el('span', { class: 'arrow', text: sortDir > 0 ? ' ↑' : ' ↓' }));
+    });
+  };
+  document.querySelectorAll('th[data-key]').forEach(th => th.onclick = () => {
+    const k = th.dataset.key;
+    if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = ['followers', 'weekly_gain', 'traction'].includes(k) ? -1 : 1; }
+    renderLib();
+  });
+  ['q', 'fType', 'fStatus', 'fTraction', 'fStar'].forEach(id => $(id).addEventListener('input', renderLib));
+
+  renderFeed(); renderLib();
+  show(location.hash === '#library' ? 'library' : 'feed');
+})();
+</script>
+</body>
+</html>
