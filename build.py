@@ -27,6 +27,7 @@ import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -160,7 +161,7 @@ def steam_media(app_id):
             or (movies[0] if movies else None))
     stream = poster = None
     if pick:
-        stream = (pick.get("hls_h264") or pick.get("dash_h264")
+        stream = (pick.get("hls_h264")
                   or (pick.get("mp4") or {}).get("max") or (pick.get("webm") or {}).get("max"))
         poster = pick.get("thumbnail")
     shots = d.get("screenshots") or []
@@ -168,14 +169,40 @@ def steam_media(app_id):
     return {"stream": stream, "poster": poster}
 
 
-def probe_duration(stream):
-    try:
-        out = subprocess.run(
-            ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", stream],
-            capture_output=True, text=True, timeout=60).stdout.strip()
-        return float(out)
-    except (ValueError, subprocess.SubprocessError):
-        return None
+def http_bytes(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return r.read()
+
+
+def hls_excerpt(master_url, dest):
+    """Save ~9s of video from ~25% into an HLS trailer as one fragmented MP4.
+
+    Steam serves trailers as HLS with fMP4 segments (an init segment plus 3s chunks,
+    audio in a separate rendition). ffmpeg's HLS demuxer mangles these, so we pick the
+    ~480p video playlist, download the init segment and three chunks, and concatenate
+    them - which is itself a valid MP4 file.
+    """
+    text = http_bytes(master_url).decode("utf-8", "replace")
+    lines = [l.strip() for l in text.splitlines()]
+    variants = []
+    for i, l in enumerate(lines):
+        if l.startswith("#EXT-X-STREAM-INF") and i + 1 < len(lines):
+            m = re.search(r"RESOLUTION=\d+x(\d+)", l)
+            variants.append((abs((int(m.group(1)) if m else 480) - 480), lines[i + 1]))
+    media_url = urllib.parse.urljoin(master_url, min(variants)[1]) if variants else master_url
+    if variants:
+        lines = [l.strip() for l in http_bytes(media_url).decode("utf-8", "replace").splitlines()]
+    init = next((re.search(r'URI="([^"]+)"', l).group(1) for l in lines if l.startswith("#EXT-X-MAP")), None)
+    segs = [lines[i + 1] for i, l in enumerate(lines) if l.startswith("#EXTINF") and i + 1 < len(lines)]
+    if not segs:
+        return False
+    first = min(int(len(segs) * 0.25), max(0, len(segs) - 3))
+    parts = ([init] if init else []) + segs[first:first + 3]
+    with open(dest, "wb") as f:
+        for p in parts:
+            f.write(http_bytes(urllib.parse.urljoin(media_url, p)))
+    return True
 
 
 def make_clip(app_id, stream):
@@ -184,21 +211,28 @@ def make_clip(app_id, stream):
     out = CACHE / f"{app_id}.mp4"
     if out.exists() and out.stat().st_size > 10_000:
         return out
-    dur = probe_duration(stream)
-    start = 10.0 if not dur else max(4.0, min(dur * 0.25, dur - CLIP_SECONDS - 1))
+    src = CACHE / f"{app_id}.src.mp4"
     tmp = CACHE / f"{app_id}.part.mp4"
-    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.1f}", "-i", stream,
-           "-t", str(CLIP_SECONDS), "-an", "-vf", f"scale={CLIP_WIDTH}:-2,fps=24",
-           "-c:v", "libx264", "-preset", "veryfast", "-crf", "30", "-pix_fmt", "yuv420p",
-           "-movflags", "+faststart", str(tmp)]
     try:
+        if ".m3u8" in stream:
+            if not hls_excerpt(stream, src):
+                return None
+            source, seek = str(src), []
+        else:  # older trailers: a plain mp4/webm file
+            source, seek = stream, ["-ss", "10"]
+        cmd = ["ffmpeg", "-y", "-loglevel", "error", *seek, "-i", source,
+               "-t", str(CLIP_SECONDS), "-an", "-vf", f"scale={CLIP_WIDTH}:-2,fps=24",
+               "-c:v", "libx264", "-preset", "veryfast", "-crf", "30", "-pix_fmt", "yuv420p",
+               "-movflags", "+faststart", str(tmp)]
         subprocess.run(cmd, check=True, timeout=240)
         tmp.replace(out)
         return out
-    except subprocess.SubprocessError as e:
+    except (OSError, urllib.error.URLError, subprocess.SubprocessError) as e:
         log(f"  clip failed for {app_id}: {e}")
         tmp.unlink(missing_ok=True)
         return None
+    finally:
+        src.unlink(missing_ok=True)
 
 
 # ---------------------------------------------------------------- build
