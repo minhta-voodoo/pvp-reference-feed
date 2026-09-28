@@ -3,13 +3,14 @@
 A page built from the **PvP Reference Library** Notion database.
 
 - **This week**: recent additions as cards, each with a 7-second muted gameplay loop cut from the game's Steam trailer.
-- **Library**: every game in the database as a searchable, sortable text table.
+- **Library**: every game in the database as a searchable, sortable text table, with multi-select filters and Steam links.
+- **How it works**: what qualifies, where finds come from, how traction is measured, and the update cadence.
 
 Notion stays the source of truth. Star, edit and add games there; this page is read-only.
 
 ## How it updates
 
-Every Monday at 05:00 UTC (12:00 Bangkok) the workflow:
+Every Monday at 05:00 UTC (12:00 Vietnam) the workflow:
 
 1. reads the rows. It uses the Notion API if a `NOTION_TOKEN` secret is set, and otherwise the `data.json` snapshot in this repo;
 2. fetches each recent addition's trailer from Steam and cuts a short loop with ffmpeg;

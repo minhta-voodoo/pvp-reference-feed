@@ -47,10 +47,10 @@ h1 { font-size: 20px; letter-spacing: -.01em; margin: 0; }
 .sub { margin: 2px 0 10px; color: var(--muted); font-size: 13px; }
 .notion { font-size: 13px; color: var(--muted); text-decoration: none; }
 .notion:hover { color: var(--ink); }
-.tabs { display: flex; gap: 4px; }
+.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
 .tabs button {
   appearance: none; border: 0; background: none; color: var(--muted); font: inherit; font-weight: 600;
-  padding: 10px 12px; border-bottom: 2px solid transparent; cursor: pointer;
+  padding: 10px 12px; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap;
 }
 .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
 .count { font-weight: 500; color: var(--muted); margin-left: 4px; font-variant-numeric: tabular-nums; }
@@ -96,18 +96,26 @@ h1 { font-size: 20px; letter-spacing: -.01em; margin: 0; }
 .tags li { font-size: 12px; padding: 1px 7px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); }
 .foot { margin-top: auto; padding-top: 8px; display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--muted);
   border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
-.foot a { color: var(--muted); text-decoration: none; }
-.foot a:hover { color: var(--ink); }
+.foot { flex-wrap: wrap; align-items: center; }
+.links { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.links a { font-size: 12px; font-weight: 600; color: var(--ink); text-decoration: none; padding: 3px 9px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--surface); white-space: nowrap; }
+.links a:hover { border-color: var(--ink); }
 .type-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 6px; vertical-align: 1px; }
 .empty { color: var(--muted); padding: 40px 0; text-align: center; }
 
 /* library */
-.lib-tools input[type="search"], .lib-tools select {
+.lib-tools input[type="search"] {
   font: inherit; font-size: 14px; color: var(--ink); background: var(--surface);
   border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px;
 }
 .lib-tools input[type="search"] { flex: 1 1 260px; min-width: 0; }
-.check { font-size: 14px; display: flex; gap: 6px; align-items: center; color: var(--muted); }
+.filters { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; align-items: center; padding: 0 0 16px; }
+.flabel { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.chip[aria-pressed="true"] .type-dot { outline: 1.5px solid var(--bg); }
+.chip.zero { opacity: .45; }
+.clear { appearance: none; border: 0; background: none; font: inherit; font-size: 13px; color: var(--accent); cursor: pointer; padding: 0; justify-self: start; grid-column: 2; }
+.clear:hover { text-decoration: underline; }
 .shown { font-size: 13px; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
 .table-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 48px; overflow: hidden; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -122,15 +130,43 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: now
 td .pub { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
 td .gname { font-weight: 600; text-decoration: none; }
 td .gname:hover { text-decoration: underline; }
+td .links { margin-top: 4px; gap: 12px; flex-wrap: nowrap; }
+td .links a { border: 0; padding: 0; background: none; border-radius: 0; font-size: 12px; color: var(--accent); }
+td .links a:hover { text-decoration: underline; }
+td:first-child { min-width: 150px; }
+td.nowrap { white-space: nowrap; }
 td.txt { color: var(--ink); min-width: 220px; }
 .tr-hot { color: var(--hot); font-weight: 700; } .tr-big { color: var(--big); font-weight: 600; }
 .tr-mid { color: var(--mid); } .tr-small, .tr-unknown { color: var(--small); }
 td .tags { margin-top: 6px; }
 
+/* how it works */
+.prose { max-width: 760px; padding: 26px 0 64px; }
+.prose h2 { font-size: 20px; letter-spacing: -.01em; margin: 0 0 6px; }
+.prose h3 { font-size: 15px; margin: 30px 0 8px; }
+.prose p, .prose li { color: var(--ink); }
+.prose p { margin: 0 0 10px; }
+.prose ul { margin: 0; padding-left: 20px; }
+.prose li { margin: 4px 0; }
+.prose li::marker { color: var(--muted); }
+.lede { color: var(--muted) !important; font-size: 15px; }
+.note { font-size: 14px; padding: 10px 12px; border-radius: 8px; background: var(--surface); border: 1px solid var(--line); }
+.defs { display: grid; grid-template-columns: max-content 1fr; gap: 10px 18px; margin: 0 0 14px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.defs dt { font-weight: 600; white-space: nowrap; }
+.defs dd { margin: 0; color: var(--ink); }
+.defs dd .muted { color: var(--muted); }
+.muted { color: var(--muted); }
+
 @media (max-width: 860px) {
   .wrap { padding: 0 16px; }
+  .tabs { gap: 0; margin: 0 -8px; }
+  .tabs button { padding: 10px 8px; }
   .grid { grid-template-columns: 1fr; }
   .shown { margin-left: 0; width: 100%; }
+  .filters { grid-template-columns: 1fr; gap: 4px; }
+  .filters .chips { margin-bottom: 8px; }
+  .clear { grid-column: 1; }
   .sep { display: none; }
   table, thead, tbody, tr, td { display: block; }
   thead { display: none; }
@@ -143,6 +179,9 @@ td .tags { margin-top: 6px; }
   td.txt::before { content: attr(data-label); display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
     letter-spacing: .04em; color: var(--muted); }
   td.hide-sm { display: none; }
+  .defs { grid-template-columns: 1fr; gap: 2px; }
+  .defs dd { margin-bottom: 10px; }
+  .defs dd:last-child { margin-bottom: 0; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
 </style>
@@ -158,6 +197,7 @@ td .tags { margin-top: 6px; }
     <nav class="tabs" role="tablist">
       <button role="tab" id="tab-feed" aria-selected="true" aria-controls="panel-feed">This week<span class="count" id="feedCount"></span></button>
       <button role="tab" id="tab-library" aria-selected="false" aria-controls="panel-library">Library<span class="count" id="libCount"></span></button>
+      <button role="tab" id="tab-how" aria-selected="false" aria-controls="panel-how">How it works</button>
     </nav>
   </div>
 </header>
@@ -176,11 +216,14 @@ td .tags { margin-top: 6px; }
   <section id="panel-library" role="tabpanel" aria-labelledby="tab-library" hidden>
     <div class="toolbar lib-tools">
       <input type="search" id="q" placeholder="Search games, publishers, tags, ideas…" aria-label="Search">
-      <select id="fType" aria-label="Type"><option value="">All types</option></select>
-      <select id="fStatus" aria-label="Status"><option value="">All statuses</option></select>
-      <select id="fTraction" aria-label="Traction"><option value="">All traction</option></select>
-      <label class="check"><input type="checkbox" id="fStar"> Starred only</label>
+      <button type="button" class="chip" id="fStar" aria-pressed="false"><span class="star" style="margin:0 4px 0 0">★</span>Starred only</button>
       <span class="shown" id="shown"></span>
+    </div>
+    <div class="filters">
+      <span class="flabel" id="lType">Type</span><div class="chips" id="fType" role="group" aria-labelledby="lType"></div>
+      <span class="flabel" id="lStatus">Status</span><div class="chips" id="fStatus" role="group" aria-labelledby="lStatus"></div>
+      <span class="flabel" id="lTraction">Traction</span><div class="chips" id="fTraction" role="group" aria-labelledby="lTraction"></div>
+      <button type="button" class="clear" id="fClear" hidden>Clear filters</button>
     </div>
     <div class="table-wrap">
       <table>
@@ -196,6 +239,65 @@ td .tags { margin-top: 6px; }
         </tr></thead>
         <tbody id="rows"></tbody>
       </table>
+    </div>
+  </section>
+
+  <section id="panel-how" role="tabpanel" aria-labelledby="tab-how" hidden>
+    <div class="prose">
+      <h2>How it works</h2>
+      <p class="lede">Steam games worth borrowing from for mobile PvP battle games. Notion is the source of truth; this page is a read-only view of it.</p>
+      <p class="note" id="sourceNote" hidden></p>
+
+      <h3>What qualifies</h3>
+      <dl class="defs">
+        <dt><span class="type-dot" style="--c:var(--layout)"></span>Visual &amp; layout</dt>
+        <dd>A battlefield or screen layout, camera or art direction that could frame a mobile battle game. <span class="muted">E.g. a side-on lane with interactive terrain, a one-screen island, stacked floors, a 3×3 grid, a moving base.</span></dd>
+        <dt><span class="type-dot" style="--c:var(--mechanic)"></span>PvP mechanic</dt>
+        <dd>A rule, resource or interaction that could anchor a mobile PvP game. <span class="muted">E.g. drafting, deploy and lane systems, positioning, counters, tempo and economy, simultaneous turns, chance devices.</span></dd>
+        <dt><span class="type-dot" style="--c:var(--both)"></span>Both</dt>
+        <dd>Passes both of the above.</dd>
+        <dt><span class="type-dot" style="--c:var(--theme)"></span>Theme &amp; art</dt>
+        <dd>A breakout indie that isn't PvP material itself, but has a setting, premise or art style that could wrap a mobile battle game.</dd>
+      </dl>
+      <ul>
+        <li>Layout and mechanic finds must name something specifically new. Skipped: genre-standard games, pure narrative, atmosphere-only horror, precision real-time input that won't simplify for touch, and sequels that inherit their core unchanged.</li>
+        <li>Theme &amp; art finds need one verified number (≥10K Steam followers, ≥250K units sold, or ≥10K all-time peak players), a breakout in the last ~12 months, and an ad-safe theme.</li>
+        <li>Novelty is judged against the whole library, not against any single game. Numbers that can't be verified are left out.</li>
+      </ul>
+
+      <h3>Where finds come from</h3>
+      <ul>
+        <li>Steam's most-wishlisted lists for 11 battle-relevant tags: Strategy, Auto Battler, Tower Defense, Roguelike Deckbuilder, RTS, Card Battler, Turn-Based Tactics, Base Building, Party Game, Action Roguelike, Board Game.</li>
+        <li>A watchlist of 24 indie publishers (Hooded Horse, Raw Fury, Devolver Digital, Klei and others): new releases, announcements and demos.</li>
+        <li>Indie-wide Steam lists for Theme &amp; art: trending new releases, top sellers, most wishlisted and upcoming.</li>
+        <li>GameDiscoverCo, SteamDB's upcoming releases, and the monthly Rogueliker and Turn Based Lovers roundups.</li>
+        <li>Each candidate is checked against its Steam data (release, publisher, demo, platforms), follower count and reviews.</li>
+      </ul>
+
+      <h3>Found via</h3>
+      <dl class="defs">
+        <dt>Back-catalogue sweep</dt><dd>Seeding pass on 28 Sep 2026: games released 90+ days before being added.</dd>
+        <dt>Trend sweep</dt><dd>Seeding pass on 28 Sep 2026: unreleased, or released within the last 90 days.</dd>
+        <dt>Weekly scan</dt><dd>Added by the Monday scan.</dd>
+      </dl>
+
+      <h3>Traction</h3>
+      <ul>
+        <li>Steam follower counts are re-read by the scan: weekly for active titles (unreleased, demo, Early Access, Theme &amp; art, or released in the last ~6 months), about monthly for older ones.</li>
+        <li><b>Per week</b> is the follower change between the last two readings, scaled to 7 days. A reading more than 20% below the previous one is treated as a bad read and skipped.</li>
+        <li><span class="tr-hot">Hot</span> ≥1,000 new followers a week · <span class="tr-big">Big</span> ≥10K followers · <span class="tr-mid">Mid</span> ≥2K · <span class="tr-small">Small</span> below 2K · <span class="tr-unknown">Unknown</span> not read yet.</li>
+      </ul>
+
+      <h3>Cadence</h3>
+      <dl class="defs">
+        <dt>Mon 02:00 UTC<br><span class="muted">09:00 Vietnam</span></dt>
+        <dd>Weekly scan: adds up to 10 layout/mechanic and 5 Theme &amp; art finds, updates status changes (demo live, released, date slipped), takes follower readings, and posts a Slack digest.</dd>
+        <dt>Mon 05:00 UTC<br><span class="muted">12:00 Vietnam</span></dt>
+        <dd>This page rebuilds: new trailer loops in This week, refreshed Library.</dd>
+        <dt>Next Fest weeks</dt>
+        <dd>February, June and October: the scan prioritises the fest's top demos. Extra mid-week run on 22 Oct 2026 for the 19–26 Oct fest.</dd>
+      </dl>
+      <p class="muted">The scan never deletes rows or rewrites a row's Reference and Mobile PvP angle. Only people set Starred.</p>
     </div>
   </section>
 </main>
@@ -226,17 +328,23 @@ td .tags { margin-top: 6px; }
   $('notionLink').href = D.notion;
   $('feedCount').textContent = feedRows.length;
   $('libCount').textContent = rows.length;
-  $('sub').textContent = `Updated ${new Date(D.built.replace('Z', ':00Z')).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })} · new additions from the last ${Math.round(D.feedDays / 7)} weeks · ${rows.length} games in the library`;
+  const longDate = (iso) => new Date(iso.length === 10 ? iso + 'T00:00:00Z' : iso.replace('Z', ':00Z')).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  const snapshot = D.source === 'snapshot';
+  $('sub').textContent = `${snapshot ? 'Notion snapshot from ' + longDate(D.asOf) : 'Updated ' + longDate(D.built)} · new additions from the last ${Math.round(D.feedDays / 7)} weeks · ${rows.length} games in the library`;
+  if (snapshot) {
+    $('sourceNote').hidden = false;
+    $('sourceNote').textContent = `This page is currently built from a Notion snapshot taken on ${longDate(D.asOf)}. New scan finds land in Notion first and show up here when the snapshot is refreshed.`;
+  }
 
   // tabs
-  const tabs = { feed: $('tab-feed'), library: $('tab-library') };
+  const tabs = { feed: $('tab-feed'), library: $('tab-library'), how: $('tab-how') };
   const show = (name) => {
+    if (!tabs[name]) name = 'feed';
     for (const [k, b] of Object.entries(tabs)) { b.setAttribute('aria-selected', k === name); $('panel-' + k).hidden = k !== name; }
-    try { history.replaceState(null, '', name === 'library' ? '#library' : '#'); } catch (e) {}
-    if (name === 'feed') observeVideos();
+    try { history.replaceState(null, '', name === 'feed' ? location.pathname : '#' + name); } catch (e) {}
+    if (name === 'feed') observeVideos(); else document.querySelectorAll('#cards video').forEach(v => v.pause());
   };
-  tabs.feed.onclick = () => show('feed');
-  tabs.library.onclick = () => show('library');
+  for (const [k, b] of Object.entries(tabs)) b.onclick = () => show(k);
 
   // ---------------- feed
   const weeks = [...new Set(feedRows.map(r => r.week))].sort().reverse();
@@ -259,6 +367,9 @@ td .tags { margin-top: 6px; }
       ...types.map(t => chip(el('span', {}, el('span', { class: 'type-dot', style: `--c:${TYPE_COLOR[t]}` }), t), inWeek.filter(r => r.type === t).length, type === t, () => { type = t; renderFeed(); }))
     );
   };
+  const links = (r) => el('span', { class: 'links' },
+    r.steam ? el('a', { href: r.steam, target: '_blank', rel: 'noopener', text: 'Steam ↗' }) : null,
+    r.notion ? el('a', { href: r.notion, target: '_blank', rel: 'noopener', text: 'Notion ↗' }) : null);
   const card = (r) => {
     const c = TYPE_COLOR[r.type] || 'var(--accent)';
     let media;
@@ -279,7 +390,7 @@ td .tags { margin-top: 6px; }
         (r.tags || []).length ? el('ul', { class: 'tags' }, r.tags.map(t => el('li', { text: t }))) : null,
         el('div', { class: 'foot' },
           el('span', { text: r.followers != null ? `${fmt(r.followers)} followers${r.weekly_gain != null ? ' · ' + gainText(r.weekly_gain) : ''}` : 'Followers not read yet' }),
-          r.notion ? el('a', { href: r.notion, target: '_blank', rel: 'noopener', text: 'Notion ↗' }) : null)));
+          links(r))));
   };
   const renderFeed = () => {
     const inWeek = feedRows.filter(r => r.week === week);
@@ -308,23 +419,43 @@ td .tags { margin-top: 6px; }
   }
 
   // ---------------- library
-  const uniq = (key) => [...new Set(rows.map(r => r[key]).filter(Boolean))].sort();
-  const addOptions = (sel, values) => values.forEach(v => sel.append(el('option', { value: v, text: v })));
-  addOptions($('fType'), Object.keys(TYPE_COLOR).filter(t => rows.some(r => r.type === t)));
-  addOptions($('fStatus'), ['Upcoming', 'Demo', 'Early Access', 'Released'].filter(s => rows.some(r => r.status === s)));
-  addOptions($('fTraction'), ['Hot', 'Big', 'Mid', 'Small', 'Unknown'].filter(s => rows.some(r => r.traction === s)));
+  // multi-select filters: OR within a group, AND across groups
+  const FILTERS = {
+    type: { box: 'fType', values: Object.keys(TYPE_COLOR), get: r => r.type },
+    status: { box: 'fStatus', values: ['Upcoming', 'Demo', 'Early Access', 'Released'], get: r => r.status },
+    traction: { box: 'fTraction', values: ['Hot', 'Big', 'Mid', 'Small', 'Unknown'], get: r => r.traction || 'Unknown' },
+  };
+  for (const f of Object.values(FILTERS)) { f.values = f.values.filter(v => rows.some(r => f.get(r) === v)); f.on = new Set(); }
+  let starOnly = false;
   let sortKey = 'game', sortDir = 1;
   const hay = rows.map(r => [r.game, r.developer, (r.publisher || []).join(' '), r.reference, r.angle, (r.tags || []).join(' '), r.signal, r.type].join(' ').toLowerCase());
   const val = (r, k) => k === 'traction' ? TRACTION_ORDER[r.traction] ?? -1 : k === 'followers' || k === 'weekly_gain' ? (r[k] ?? -Infinity) : (r[k] || '').toString().toLowerCase();
+  const passes = (r, i, q, skip) => (!q || q.split(/\s+/).every(w => hay[i].includes(w))) && (!starOnly || r.starred)
+    && Object.entries(FILTERS).every(([k, f]) => k === skip || !f.on.size || f.on.has(f.get(r)));
+  const renderFilters = (q) => {
+    for (const [k, f] of Object.entries(FILTERS)) {
+      const base = rows.filter((r, i) => passes(r, i, q, k));
+      $(f.box).replaceChildren(...f.values.map(v => {
+        const n = base.filter(r => f.get(r) === v).length;
+        const label = k === 'type' ? el('span', {}, el('span', { class: 'type-dot', style: `--c:${TYPE_COLOR[v]}` }), v) : v;
+        const b = chip(label, n, f.on.has(v), () => { f.on.has(v) ? f.on.delete(v) : f.on.add(v); renderLib(); });
+        if (!n && !f.on.has(v)) b.classList.add('zero');
+        return b;
+      }));
+    }
+    $('fStar').setAttribute('aria-pressed', starOnly);
+    $('fClear').hidden = !(starOnly || Object.values(FILTERS).some(f => f.on.size));
+  };
   const renderLib = () => {
-    const q = $('q').value.trim().toLowerCase(), ft = $('fType').value, fs = $('fStatus').value, fr = $('fTraction').value, star = $('fStar').checked;
-    const list = rows.filter((r, i) => (!q || q.split(/\s+/).every(w => hay[i].includes(w))) && (!ft || r.type === ft) && (!fs || r.status === fs) && (!fr || r.traction === fr) && (!star || r.starred))
+    const q = $('q').value.trim().toLowerCase();
+    renderFilters(q);
+    const list = rows.filter((r, i) => passes(r, i, q))
       .sort((a, b) => { const x = val(a, sortKey), y = val(b, sortKey); return (x > y ? 1 : x < y ? -1 : 0) * sortDir || a.game.localeCompare(b.game); });
     $('shown').textContent = `${list.length} of ${rows.length}`;
     $('rows').replaceChildren(...list.map(r => el('tr', {},
       el('td', {}, el('a', { class: 'gname', href: r.steam, target: '_blank', rel: 'noopener', text: r.game }), r.starred ? el('span', { class: 'star', text: '★' }) : null,
-        el('span', { class: 'pub', text: (r.publisher || []).join(', ') })),
-      el('td', { class: 'hide-sm' }, el('span', { class: 'type-dot', style: `--c:${TYPE_COLOR[r.type] || 'var(--muted)'}` }), r.type || ''),
+        el('span', { class: 'pub', text: (r.publisher || []).join(', ') }), links(r)),
+      el('td', { class: 'hide-sm nowrap' }, el('span', { class: 'type-dot', style: `--c:${TYPE_COLOR[r.type] || 'var(--muted)'}` }), r.type || ''),
       el('td', { class: 'hide-sm' }, r.status || '', el('span', { class: 'pub', text: r.release || '' })),
       el('td', { class: 'num', 'data-label': 'Traction', style: 'text-align:left' }, el('span', { class: 'tr-' + (r.traction || 'unknown').toLowerCase(), text: r.traction || '—' })),
       el('td', { class: 'num', 'data-label': 'Followers', text: fmt(r.followers) }),
@@ -341,10 +472,12 @@ td .tags { margin-top: 6px; }
     if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = ['followers', 'weekly_gain', 'traction'].includes(k) ? -1 : 1; }
     renderLib();
   });
-  ['q', 'fType', 'fStatus', 'fTraction', 'fStar'].forEach(id => $(id).addEventListener('input', renderLib));
+  $('q').addEventListener('input', renderLib);
+  $('fStar').onclick = () => { starOnly = !starOnly; renderLib(); };
+  $('fClear').onclick = () => { starOnly = false; Object.values(FILTERS).forEach(f => f.on.clear()); renderLib(); };
 
   renderFeed(); renderLib();
-  show(location.hash === '#library' ? 'library' : 'feed');
+  show(location.hash.slice(1));
 })();
 </script>
 </body>

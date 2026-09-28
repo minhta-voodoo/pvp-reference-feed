@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Build the PvP reference feed: Notion database -> one static page.
 
-The page has two tabs:
-  * This week - recent additions as cards with a short muted gameplay loop
-  * Library   - the whole database as a searchable, sortable text table
+The page has three tabs:
+  * This week    - recent additions as cards with a short muted gameplay loop
+  * Library      - the whole database as a searchable, filterable text table
+  * How it works - methodology and cadence (static text in template.html)
 
 Standard library only. Clips need ffmpeg/ffprobe on PATH.
 
@@ -242,7 +243,7 @@ def week_start(iso):
     return (d - dt.timedelta(days=d.weekday())).isoformat()
 
 
-def build(rows, clips=True):
+def build(rows, clips=True, source="notion"):
     today = dt.datetime.now(dt.timezone.utc).date()
     if SITE.exists():
         shutil.rmtree(SITE)
@@ -280,6 +281,8 @@ def build(rows, clips=True):
         "built": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
         "notion": NOTION_URL,
         "feedDays": FEED_DAYS,
+        "source": source,  # "notion" (live) or "snapshot" (data.json)
+        "asOf": max([(r.get("added") or "")[:10] for r in rows] + [(r.get("followers_checked") or "")[:10] for r in rows]),
         "rows": rows,
     }
     data = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
@@ -295,6 +298,7 @@ def main():
     ap.add_argument("--no-clips", action="store_true", help="skip Steam and ffmpeg")
     args = ap.parse_args()
     snapshot = ROOT / "data.json"
+    source = "notion"
     if args.fixture:
         rows = json.loads(Path(args.fixture).read_text(encoding="utf-8"))
     elif os.environ.get("NOTION_TOKEN"):
@@ -302,9 +306,10 @@ def main():
     elif snapshot.exists():  # no Notion access yet: build from the committed snapshot
         log("NOTION_TOKEN not set - building from data.json snapshot")
         rows = json.loads(snapshot.read_text(encoding="utf-8"))
+        source = "snapshot"
     else:
         sys.exit("NOTION_TOKEN is not set and there is no data.json snapshot")
-    build(rows, clips=not args.no_clips)
+    build(rows, clips=not args.no_clips, source=source)
 
 
 if __name__ == "__main__":
