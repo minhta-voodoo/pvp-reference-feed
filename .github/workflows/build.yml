@@ -1,0 +1,50 @@
+name: Build reference feed
+
+on:
+  schedule:
+    - cron: "0 5 * * 1"   # Mondays 05:00 UTC (12:00 Bangkok), after the Monday Notion scan
+  workflow_dispatch:       # "Run workflow" button for an on-demand refresh
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore clip cache
+        uses: actions/cache@v4
+        with:
+          path: clip-cache
+          key: clips-${{ github.run_id }}
+          restore-keys: clips-
+
+      - name: Ensure ffmpeg
+        run: command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
+      - name: Build page from Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: python3 build.py
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deployment
+        uses: actions/deploy-pages@v5
