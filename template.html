@@ -254,8 +254,8 @@ td .tags { margin-top: 6px; }
         <dd>A battlefield or screen layout, camera or art direction that could frame a mobile battle game. <span class="muted">E.g. a side-on lane with interactive terrain, a one-screen island, stacked floors, a 3×3 grid, a moving base.</span></dd>
         <dt><span class="type-dot" style="--c:var(--mechanic)"></span>PvP mechanic</dt>
         <dd>A rule, resource or interaction that could anchor a mobile PvP game. <span class="muted">E.g. drafting, deploy and lane systems, positioning, counters, tempo and economy, simultaneous turns, chance devices.</span></dd>
-        <dt><span class="type-dot" style="--c:var(--both)"></span>Both</dt>
-        <dd>Passes both of the above.</dd>
+        <dt><span class="type-dot" style="--c:var(--both)"></span>Layout + mechanic</dt>
+        <dd>Has both: a new layout and a PvP mechanic worth borrowing.</dd>
         <dt><span class="type-dot" style="--c:var(--theme)"></span>Theme &amp; art</dt>
         <dd>A breakout indie that isn't PvP material itself, but has a setting, premise or art style that could wrap a mobile battle game.</dd>
       </dl>
@@ -307,7 +307,8 @@ td .tags { margin-top: 6px; }
 (() => {
   const D = JSON.parse(document.getElementById('feed-data').textContent);
   const rows = D.rows;
-  const TYPE_COLOR = { 'Visual & layout': 'var(--layout)', 'PvP mechanic': 'var(--mechanic)', 'Both': 'var(--both)', 'Theme & art': 'var(--theme)' };
+  rows.forEach(r => { if (r.type === 'Both') r.type = 'Layout + mechanic'; });  // old label
+  const TYPE_COLOR = { 'Visual & layout': 'var(--layout)', 'PvP mechanic': 'var(--mechanic)', 'Layout + mechanic': 'var(--both)', 'Theme & art': 'var(--theme)' };
   const TRACTION_ORDER = { Hot: 4, Big: 3, Mid: 2, Small: 1, Unknown: 0 };
   const $ = (id) => document.getElementById(id);
   const el = (tag, attrs = {}, ...kids) => {
