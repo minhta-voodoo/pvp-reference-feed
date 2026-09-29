@@ -33,7 +33,7 @@ import urllib.request
 from pathlib import Path
 
 DATABASE_ID = os.environ.get("NOTION_DATABASE_ID", "4008752aa1484179a4d107cd8e91c1d1")
-NOTION_URL = f"https://www.notion.so/{DATABASE_ID}"
+NOTION_URL = f"https://app.notion.com/p/{DATABASE_ID}"
 FEED_DAYS = int(os.environ.get("FEED_DAYS", "28"))
 FEED_SOURCES = {"Weekly scan", "Trend sweep"}  # back-catalogue rows live in the Library tab only
 CLIP_SECONDS = 7
@@ -250,6 +250,8 @@ def build(rows, clips=True, source="notion"):
     (SITE / "clips").mkdir(parents=True)
 
     rows = [fill_traction(r) for r in rows if r.get("game")]
+    for r in rows:  # app.notion.com/<id> 404s; the page link needs /p/
+        r["notion"] = re.sub(r"^https://app\.notion\.com/([0-9a-f]{32})$", r"https://app.notion.com/p/\1", r.get("notion") or "") or None
     feed = [r for r in rows
             if r.get("found_via") in FEED_SOURCES and r.get("added")
             and (today - dt.date.fromisoformat(r["added"][:10])).days <= FEED_DAYS]
